@@ -1,0 +1,31 @@
+{% comment %}
+Retrieve and render the node level alarms from the total batch of alarms
+{% endcomment %}
+
+{% if alarmsRcvEmpty == false %}
+    {% assign alarmsResponse = alarmsFromAPI.response["technologies"] | where: "technology_name", tech %}
+    
+    {% if includeCellStatus == true %}
+      {%- assign filteredAlarmResponse = alarmsResponse | where: "oss_name" , ossName  -%}
+
+        {%- if filteredAlarmResponse[0]["site"].size !=0 and filteredAlarms != null | json -%}
+            {% assign filteredAlarms = filteredAlarmResponse[0]["site"]  %}
+        {% else %}
+            {% assign filteredAlarms = "[]" %}
+        {% endif %}
+       
+    {% else %}
+        {% assign filteredAlarms = alarmsResponse[0]["site"] %}    
+    {% endif %}
+    
+    {% if filteredAlarms != null and filteredAlarms.size != 0 %}
+        {% assign alarms = filteredAlarms | json %}
+    {% else %}
+        {% assign alarms = "[]" %}
+    {% endif %}
+{% comment %} If the alarms have not been fetched (i.e. alarmsFromAPI.error) return the error {% endcomment %}
+{% else %}
+    {% assign alarms = alarmsFromAPI | json %}
+{% endif %}
+
+{{alarms}}

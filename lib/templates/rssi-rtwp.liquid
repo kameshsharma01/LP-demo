@@ -1,0 +1,41 @@
+{% comment %}
+Retrieve and render the RSSI/RTWP metrics
+{% endcomment %}
+
+{% if rssiRcvEmpty == false %}
+    {% assign rssiRtwpResponse = rssiRtwpFromApi.response["technologies"] | where: "technology_name", tech %}
+    
+    {%- assign normalizedVendor = vendor | downcase -%}
+    {%- assign filteredRssiResponse = rssiRtwpResponse | where: "oss_name" , ossName  -%}
+
+
+    {%- if normalizedVendor == "ericsson" -%}    
+        {%- comment -%}
+            If template's called on a cell, filter RSSI/RTWP by that, else
+            don't apply any filters (return all RSSI that have a name)
+        {%- endcomment -%}
+        {% if cell == "[]" %} 
+            {% assign filteredResponse = filteredRssiResponse[0]["cells"]  | where: "name" | json %} 
+        {% else %}  
+            {% assign filteredResponse = filteredRssiResponse[0]["cells"]  | where: "name", cell | json %} 
+        {% endif %}
+    {% else %} 
+        {% if cell == "[]" %} 
+            {% assign filteredResponse = filteredRssiResponse[0]["cells"] | json %} 
+        {% else %}  
+            {% assign filteredResponse = filteredRssiResponse[0]["cells"]  | where: "name", cell | json %} 
+        {% endif %}
+    {% endif %}
+    
+
+    {% if filteredResponse != "[null]" %}
+        {% assign rssiRtwp = filteredResponse %}
+    {% else %}
+        {% assign rssiRtwp = "[]" %}
+    {% endif %}  
+{%- comment -%} If the alarms have not been fetched (i.e. rssiRtwpFromApi.error) return the error{% endcomment %}
+{% else %}
+    {% assign rssiRtwp = rssiRtwpFromApi | json %}
+{% endif %}
+
+{{rssiRtwp}}

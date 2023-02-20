@@ -1,0 +1,13 @@
+{%- comment -%}
+Fetches and renders the command healthcheck data
+{%- endcomment -%}
+
+{% if includeCmdHealthCheck == true %}
+    {% assign healthCheckFromAPI = siteInfoResult['commands-health-check'] -%}
+    {% assign healthCheck = healthCheckFromAPI | json %}
+
+{% else %}
+    {% assign healthCheck = "[]" %}
+{%- endif -%}  
+     
+"command_healthcheck": {{healthCheck}}

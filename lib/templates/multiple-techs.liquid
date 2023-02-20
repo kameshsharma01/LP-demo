@@ -1,0 +1,63 @@
+{%- comment -%}
+Renders the site info object tree when multiple tech entries are returned from /cells
+{%- endcomment -%}
+
+{% assign postfix = "," %}
+{% assign comma = "," %}
+{% assign ossName = response.oss_name %}
+
+{%- if includeCellStatus -%}
+    {
+        "oss_name": {{ossName | json}},
+        "cells": [
+            {%- for cell in response.cells -%}
+                {%- if cell["name"] != nil -%}
+                    {% if forloop.last == true %} {% assign postfix = "" %} {% endif %}
+                    {
+                        "{{cell["name"]}}": {
+                            "cell_parameters": {{cell["parameters"] | json}},
+                            "extra_cell_parameters": {% render "extra-cells-parameter" tech: tech,ossName:ossName, cell: cell["name"], extraCellParamFromApi: extraCellParamFromApi, extraCellParamRcvEmpty: extraCellParamRcvEmpty %},
+                            "kpis": {% render "kpis" tech: tech, cell: cell["name"], kpisFromAPI: kpisFromAPI, kpisRcvEmpty: kpisRcvEmpty, ossName:ossName %},
+                            "imnos_kpis": {% render "imnos-kpis" tech: tech, cell: cell["name"], imnosKpisFromApi: imnosKpisFromApi, imnosKpisRcvEmpty: imnosKpisRcvEmpty %},
+                            "power": {% render "power" tech: tech, cell: cell["name"], powerFromAPI: powerFromAPI, powerRcvEmpty: powerRcvEmpty, ossName:ossName  %},
+                            "alarms": {% render "cells-alarms" tech: tech, idx: idx, cell: cell["name"], alarmsFromAPI: alarmsFromAPI, alarmsRcvEmpty: alarmsRcvEmpty %},
+                            "rssi_rtwp": {% render "rssi-rtwp" tech: tech, cell: cell["name"], rssiRtwpFromApi: rssiRtwpFromApi, rssiRcvEmpty: rssiRcvEmpty, vendor: payload.vendor, ossName:ossName %},
+                            "vswr": {%- render "vswr" tech: tech, cell: cell["name"], vswrFromApi: vswrFromApi, vswrRcvEmpty: vswrRcvEmpty, vendor: payload.vendor, ossName:ossName -%},
+                            "fiber_check": {% render "fiber-check" tech: tech, cell: cell["name"], fiberCheckFromApi: fiberCheckFromApi, fiberCheckRcvEmpty: fiberCheckRcvEmpty %}
+                        }
+                    }{{postfix}}
+            {%- endif -%}
+        {%- endfor -%}
+
+        ],
+        {% render "gsm-info" tech: tech, includeGsmInfo: includeGsmInfo, payload: payload %}
+         "nodes": {% render "nodes" tech: tech, cellsRcvEmpty: cellsRcvEmpty, cellStatusFromAPI: cellStatusFromAPI, cellsApiRequested: cellsApiRequested, cell: cell["name"], fiberCheckFromApi: fiberCheckFromApi, fiberCheckRcvEmpty: fiberCheckRcvEmpty, payload: payload,ossName:ossName %}
+            {{comma}}
+        "sw_version": {% render "sw-version", tech: tech, swVersionFromApi: swVersionFromApi, swVersionRcvEmpty: swVersionRcvEmpty %}{{comma}}
+        "rxotgs": [  
+            {% render "rxotgs"  tech: tech, cellsRcvEmpty: cellsRcvEmpty, cellStatusFromAPI: cellStatusFromAPI, cellsApiRequested: cellsApiRequested, payload: payload %}
+        ]{{comma}}  
+        "alarms": {%- render "alarms" tech: tech, alarmsFromAPI: alarmsFromAPI,ossName: ossName ,idx: idx, alarmsRcvEmpty: alarmsRcvEmpty,includeCellStatus:includeCellStatus -%}
+    }{{postfixmulti}}
+{%- else -%}
+    {
+        "oss_name": {{ossName}},
+        "cells": [
+            {%- for cell in response.cells -%}
+                {% if forloop.last == true %} {% assign postfix = "" %} {% endif %}
+                {
+                    "{{cell}}": {
+                        "extra_cell_parameters": {% render "extra-cells-parameter" tech: tech, cell: cell, extraCellParamFromApi: extraCellParamFromApi, extraCellParamRcvEmpty: extraCellParamRcvEmpty %},
+                        "kpis": {% render "kpis" tech: tech, cell: cell, kpisFromAPI: kpisFromAPI, kpisRcvEmpty: kpisRcvEmpty, ossName:ossName %},
+                        "imnos_kpis": {% render "imnos-kpis" tech: tech, cell: cell, imnosKpisFromApi: imnosKpisFromApi, imnosKpisRcvEmpty: imnosKpisRcvEmpty %},
+                        "power": {% render "power" tech: tech, cell: cell, powerFromAPI: powerFromAPI, powerRcvEmpty: powerRcvEmpty, ossName:ossName  %},
+                        "alarms": {% render "cells-alarms" tech: tech, idx: idx, cell: cell, alarmsFromAPI: alarmsFromAPI, alarmsRcvEmpty: alarmsRcvEmpty %},
+                        "rssi_rtwp": {% render "rssi-rtwp" tech: tech, cell: cell, rssiRtwpFromApi: rssiRtwpFromApi, rssiRcvEmpty: rssiRcvEmpty, vendor: payload.vendor, ossName:ossName %},
+                        "vswr": {%- render "vswr" tech: tech, cell: cell, vswrFromApi: vswrFromApi, vswrRcvEmpty: vswrRcvEmpty, vendor: payload.vendor,ossName:ossName -%},
+                        "fiber_check": {% render "fiber-check" tech: tech, cell: cell, fiberCheckFromApi: fiberCheckFromApi, fiberCheckRcvEmpty: fiberCheckRcvEmpty %}
+                    }
+                }{{postfix}}
+            {%- endfor -%}
+        ]
+    }{{comma}}
+{%- endif -%}

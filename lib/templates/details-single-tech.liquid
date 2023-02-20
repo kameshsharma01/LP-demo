@@ -1,0 +1,31 @@
+{%- comment -%}
+Fetches and renders the cells info from the incoming cells or cell-status data
+{%- endcomment -%}
+
+{%- comment -%} Fetch and parse the /cells endpoint data{%- endcomment -%}
+{% if cellsApiRequested == true %}
+    {% render "cells" tech: tech, idx: idx, payload: payload,
+    kpisFromAPI: kpisFromAPI, kpisRcvEmpty: kpisRcvEmpty,
+    cellsRcvEmpty: cellsRcvEmpty, cellStatusFromAPI: cellStatusFromAPI, 
+    extraCellParamFromApi:extraCellParamFromApi, extraCellParamRcvEmpty:extraCellParamRcvEmpty,
+    rssiRtwpFromApi: rssiRtwpFromApi, rssiRcvEmpty: rssiRcvEmpty,
+    vswrFromApi: vswrFromApi, vswrRcvEmpty: vswrRcvEmpty,
+    alarmsFromAPI: alarmsFromAPI, alarmsRcvEmpty: alarmsRcvEmpty,
+    fiberCheckFromApi: fiberCheckFromApi, fiberCheckRcvEmpty: fiberCheckRcvEmpty
+    powerFromAPI: powerFromAPI, powerRcvEmpty: powerRcvEmpty,imnosKpisFromApi: imnosKpisFromApi, imnosKpisRcvEmpty: imnosKpisRcvEmpty
+    %}
+
+{%- comment -%} Fetch and parse the /cell-status endpoint data{%- endcomment -%}
+{% else %} 
+    {% render "cell-status" tech: tech, idx: idx, payload: payload,
+    kpisFromAPI: kpisFromAPI, kpisRcvEmpty: kpisRcvEmpty,
+    cellsRcvEmpty: cellsRcvEmpty, cellStatusFromAPI: cellStatusFromAPI, 
+    extraCellParamFromApi:extraCellParamFromApi, extraCellParamRcvEmpty:extraCellParamRcvEmpty,
+    rssiRtwpFromApi: rssiRtwpFromApi, rssiRcvEmpty: rssiRcvEmpty,
+    vswrFromApi: vswrFromApi, vswrRcvEmpty: vswrRcvEmpty,
+    alarmsFromAPI: alarmsFromAPI, alarmsRcvEmpty: alarmsRcvEmpty,
+    fiberCheckFromApi: fiberCheckFromApi, fiberCheckRcvEmpty: fiberCheckRcvEmpty
+    powerFromAPI: powerFromAPI, powerRcvEmpty: powerRcvEmpty,imnosKpisFromApi: imnosKpisFromApi, imnosKpisRcvEmpty: imnosKpisRcvEmpty
+    %}
+{% endif %}
+

@@ -1,0 +1,58 @@
+{%- comment -%}
+Fetches and renders the cells info when multiple tech entries are returned from /cells
+{%- endcomment -%}
+
+{% assign comma = "," %}
+{% assign postfix = "," %}
+{% assign postfixmulti = "," %}
+
+
+{%- if cellsRcvEmpty == false -%}
+    {% for tech in techFilters-%}
+        {% assign cellsResponse = cellStatusFromAPI.response["technologies"] | where: "technology_name", tech %}
+        {%- assign idx = forloop.index0 -%}
+        "{{tech}}": [
+            {%- if cellsResponse == empty -%}
+                {% assign totalCells = "[]" %}
+                {
+                    "details": {{totalCells}},
+                    "extra_cell_parameters": {% render "extra-cells-parameter" tech: tech, cell: totalCells, extraCellParamFromApi: extraCellParamFromApi, extraCellParamRcvEmpty: extraCellParamRcvEmpty %},
+                    "kpis": {% render "kpis" tech: tech, cell: totalCells, kpisFromAPI: kpisFromAPI, kpisRcvEmpty: kpisRcvEmpty %}
+                    "imnos_kpis": {% render "imnos-kpis" tech: tech, cell: totalCells, imnosKpisFromApi: imnosKpisFromApi, imnosKpisRcvEmpty: imnosKpisRcvEmpty %},
+                    "power": {% render "power" tech: tech, cell: totalCells, powerFromAPI: powerFromAPI, powerRcvEmpty: powerRcvEmpty %},
+                    "alarms": {% render "cells-alarms" tech: tech, idx: idx, cell: totalCells, alarmsFromAPI: alarmsFromAPI, alarmsRcvEmpty: alarmsRcvEmpty %},
+                    "rssi_rtwp": {% render "rssi-rtwp" tech: tech, cell: totalCells, rssiRtwpFromApi: rssiRtwpFromApi, rssiRcvEmpty: rssiRcvEmpty, vendor: payload.vendor %},
+                    "vswr": {% render "vswr" tech: tech, cell: totalCells, vswrFromApi: vswrFromApi, vswrRcvEmpty: vswrRcvEmpty, vendor: payload.vendor %},
+                    "fiber_check": {% render "fiber-check" tech: tech, cell: totalCells, fiberCheckFromApi: fiberCheckFromApi, fiberCheckRcvEmpty: fiberCheckRcvEmpty %}
+                }
+            {%- else -%}
+                {%- for response in cellsResponse -%}
+                    {% if forloop.last == true %} {% assign postfixmulti = "" %} {% else %} {% assign postfixmulti = "," %} {% endif %}
+                    {% render "multiple-techs" tech: tech, idx: idx, cell: cell, response: response,
+                    extraCellParamFromApi:extraCellParamFromApi,extraCellParamRcvEmpty:extraCellParamRcvEmpty,
+                    alarmsFromAPI: alarmsFromAPI, alarmsRcvEmpty: alarmsRcvEmpty,
+                    rssiRtwpFromApi: rssiRtwpFromApi, rssiRcvEmpty: rssiRcvEmpty,
+                    kpisFromAPI: kpisFromAPI, kpisRcvEmpty: kpisRcvEmpty,
+                    vswrFromApi: vswrFromApi, vswrRcvEmpty: vswrRcvEmpty,
+                    fiberCheckFromApi: fiberCheckFromApi, fiberCheckRcvEmpty: fiberCheckRcvEmpty,
+                    imnosKpisFromApi: imnosKpisFromApi, imnosKpisRcvEmpty: imnosKpisRcvEmpty,
+                    powerFromAPI: powerFromAPI, powerRcvEmpty: powerRcvEmpty,
+                    includeCellStatus:includeCellStatus,multipleTechs:multipleTechs,
+                    postfixmulti:postfixmulti,cellsRcvEmpty:cellsRcvEmpty,cellStatusFromAPI:cellStatusFromAPI,
+                    cellsApiRequested:cellsApiRequested, swVersionFromApi: swVersionFromApi, swVersionRcvEmpty: swVersionRcvEmpty, payload: payload
+                    %}
+                {%- endfor -%}
+            {%- endif -%}
+            {%- if includeCellStatus != true -%}
+                {% render "gsm-info" tech: tech, payload: payload, includeGsmInfo: includeGsmInfo %}
+                {"alarms": {% render "alarms" tech: tech, alarmsFromAPI: alarmsFromAPI, alarmsRcvEmpty: alarmsRcvEmpty %}}
+            {%- endif -%}
+        ]{{comma}}
+    {% endfor %}
+{%- comment -%}An error was returned when accessing the enpoint{%- endcomment -%}
+{%- else -%}
+    {% assign totalCells = cellStatusFromAPI | json %}
+    {
+        "error": {{totalCells}}
+    }
+{%- endif -%}

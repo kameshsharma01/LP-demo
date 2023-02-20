@@ -1,0 +1,25 @@
+{%- comment -%}
+Fetches and renders the RXOTG data from cell-status
+{%- endcomment -%}
+{%- comment -%} {% assign postfix = "," %} {%- endcomment -%}
+
+{%- comment -%}If cell-status has been requested{%- endcomment -%}
+{% if cellsRcvEmpty == false %}
+    {% assign cellStatusResponse = cellStatusFromAPI.response["technologies"] | where: "technology_name", tech | map: "rxotgs" %}
+
+    {%- if cellStatusResponse -%}         
+        {
+            "details": {{cellStatusResponse | json }}
+                
+        }               
+    {%- else -%}
+        {
+            "details": "[]"
+        }
+    {%- endif -%}    
+{%- else -%}
+{% assign rxotgsError = cellStatusFromAPI | json %}
+{
+    "error": {{rxotgsError}}
+}
+{%- endif -%}

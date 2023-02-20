@@ -1,0 +1,31 @@
+{% comment %}
+Retrieve and render sw-version
+{% endcomment %}
+
+{% assign postfix = "," %}
+
+{% if swVersionRcvEmpty == false %}
+    {% assign swVersionResponse = swVersionFromApi.response["technologies"] | where: "technology_name", tech %}
+    {% if swVersionResponse.size > 1 %}
+      [
+        {%- for response in swVersionResponse -%}
+        {% if forloop.last == true %} {% assign postfix = "" %} {% endif %}
+          {
+            "oss_name": {{ response["oss_name"] | json }},
+            "sw_version": {{ response["sw"] | json }}
+          }{{postfix}}
+        {% endfor %}
+      ]
+    {% else %}
+      {%- assign filteredSwVersionResponse = swVersionResponse[0]["sw"] | json -%}
+
+      {% if filteredSwVersionResponse != null and filteredSwVersionResponse.size != 0 %}
+          {{ filteredSwVersionResponse }}
+      {% else %}
+        {{ "[]" }}
+      {% endif %}
+    {% endif %}
+{% comment %} If the sw-version have not been fetched (i.e. swVersionFromAPI.error) return the error {% endcomment %}
+{% else %}
+    {{ swVersionFromApi | json }}
+{% endif %}

@@ -1,0 +1,69 @@
+{%- comment -%}
+Fetches and renders the nodes data from cell-status
+{%- endcomment -%}
+{% assign postfix = "," %}
+
+{%- comment -%}If cell-status has been requested{%- endcomment -%}
+
+ {%- assign normalizedVendor = payload.vendor | downcase -%}
+
+    {%- if normalizedVendor == "ericsson" -%}
+        {% if cellsRcvEmpty == false %}
+            {% assign cellStatusResponse = cellStatusFromAPI.response["technologies"] | where: "technology_name", tech %}
+
+            {%- if cellStatusResponse[0]["nodes"] -%}
+            {%- for response in cellStatusResponse -%}
+                {%- for node in response.nodes -%}
+                {% if forloop.last == true %} {% assign postfix = "" %} {% endif %}
+                {                
+                    "{{node["name"]}}": {
+                        "node_parameters": {{node["parameters"] | json}}                            
+                    }
+                }{{postfix}}
+                {%- endfor -%}
+            {%- endfor -%}
+            {%- else -%}
+                []
+            {%- endif -%}   
+        {%- else -%}
+        {% assign nodesError = cellStatusFromAPI | json %}
+            {
+                "error": {{nodesError}}
+            }
+        {%- endif -%}
+    {%- else -%}
+    {% if cellsRcvEmpty == false %}
+    {% assign cellStatusResponse = cellStatusFromAPI.response["technologies"] | where: "technology_name", tech %}
+    {% assign fiberCheckResponse = fiberCheckFromApi.response["technologies"] | where: "technology_name", tech %}
+    {% assign ossResponse = fiberCheckResponse | where: "oss_name", ossName %} 
+
+         {%- if cellStatusResponse == empty -%} 
+                {
+                    "nodes": "[]"
+                }
+            {%- else -%}
+                {%- for response in cellStatusResponse -%}
+                    {%- for node in response.nodes -%}
+                    {% if forloop.last == true %} {% assign postfix = "" %} {% endif %}
+                    {                
+                        "{{node["name"]}}": {
+                            "node_parameters": {{node["parameters"] | json}}                            
+                        }
+                    }{{postfix}}
+                    {%- endfor -%}
+                {%- endfor -%}
+                {%- if fiberCheckResponse != empty -%}
+                     {{ossResponse[0]["nodes"] | json}}
+
+                {% else %}
+                    []     
+                {%- endif -%}
+            {%- endif -%}   
+        {%- else -%}
+        {% assign nodesError = cellStatusFromAPI | json %}
+            {
+                "error": {{nodesError}}
+            }
+        {%- endif -%}
+    {%- endif -%}
+    

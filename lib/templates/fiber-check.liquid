@@ -1,0 +1,24 @@
+{% comment %}
+Retrieve and render the Fiber Check metrics
+{% endcomment %}
+
+{% if fiberCheckRcvEmpty == false %}
+    {% assign fiberCheckResponse = fiberCheckFromApi.response["technologies"] | where: "technology_name", tech %}
+
+    {% if cell == "[]" %} 
+        {% assign filteredResponse = fiberCheckResponse[0]["cells"]  | where: "name" | json %} 
+    {% else %}  
+        {% assign filteredResponse = fiberCheckResponse[0]["cells"]  | where: "name", cell | json %} 
+    {% endif %}
+
+    {% if filteredResponse %}
+        {% assign fiber_check = filteredResponse %}
+    {% else %}
+        {% assign fiber_check = "[]" %}
+    {% endif %}  
+{%- comment -%} If the Fiber Check metrics have not been fetched (i.e. fiberCheckFromApi.error) return the error{% endcomment %}
+{% else %}
+    {% assign fiber_check = fiberCheckFromApi | json %}
+{% endif %}
+
+{{fiber_check}}
