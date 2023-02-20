@@ -3,6 +3,10 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
+  "directories": {
+    "lib": "lib",
+    "test": "test"
+  },
   "scripts":{
     "format": "prettier \"{lib,test}/**/*.js\"",
     "format:check": "npm run format -- --check",
