@@ -12,7 +12,7 @@
     "format:check": "npm run format -- --check",
     "format:list": "npm run format -- --list-different",
     "format:write": "npm run format -- --write",
-    "lint": "eslint \"{lib,test}/**/*.js\".js",
+    "lint": "eslint \"{lib,test}/**/*.js\"",
     "lint:fix": "npm run lint -- --fix",
     "start:dev": "nodemon -r make-promises-safe -r dotenv/config index.js",
     "start": "node -r make-promises-safe -r dotenv/config index.js",
