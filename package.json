@@ -7,7 +7,7 @@
     "lib": "lib",
     "test": "test"
   },
-  "scripts":{
+  "scripts": {
     "format": "prettier \"{lib,test}/**/*.js\"",
     "format:check": "npm run format -- --check",
     "format:list": "npm run format -- --list-different",
@@ -22,6 +22,9 @@
     "test:watch": "jest --watch"
   },
   "dependencies": {
+    "@commitlint/cli": "^17.4.4",
+    "@commitlint/config-conventional": "^17.4.4",
+    "@semantic-release/changelog": "^6.0.2",
     "ajv": "^6.12.6",
     "fastify": "^3.0.0",
     "got": "^11.8.2",
@@ -30,13 +33,11 @@
     "pino": "^6.11.3",
     "ramda": "^0.27.1",
     "require-directory": "^2.1.1",
+    "semantic-release": "^20.1.0",
     "sugar-inflections": "^2.0.6",
     "sugar-string": "^2.0.6"
   },
   "devDependencies": {
-    "@commitlint/cli": "^12.1.1",
-    "@commitlint/config-conventional": "^12.1.1",
-    "@semantic-release/changelog": "^5.0.1",
     "depcheck": "^1.4.1",
     "dotenv": "^9.0.2",
     "eslint": "^7.26.0",
@@ -50,7 +51,6 @@
     "nodemon": "^2.0.7",
     "pino-pretty": "^4.8.0",
     "prettier": "^2.3.0",
-    "semantic-release": "^17.4.4",
     "timekeeper": "^2.2.0"
   },
   "repository": {
