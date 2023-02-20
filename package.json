@@ -21,7 +21,12 @@
     "test:coverage": "jest --coverage",
     "test:watch": "jest --watch"
   },
-  "dependencies": {
+  
+    "publishConfig": {
+      "registry" : "https://private-npm-registry-url/repository/npm-internal/"
+    },
+    
+    "dependencies": {
     "@commitlint/cli": "^17.4.4",
     "@commitlint/config-conventional": "^17.4.4",
     "@semantic-release/changelog": "^6.0.2",
