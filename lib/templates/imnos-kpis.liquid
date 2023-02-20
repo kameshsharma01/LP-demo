@@ -1,0 +1,29 @@
+{% comment %}
+Retrieve and render imnos-kpis data of each cell
+{% endcomment %}
+
+{% if imnosKpisRcvEmpty == false %}
+    {% assign imnosKpisResponse = imnosKpisFromAPI.techs["cells"] | where: "tech", tech %}
+
+    {%- comment -%}
+    If template's called on a cell, filter imnos-kpis by that, else
+    don't apply any filters (return all imnos-kpis data that have a name)
+    {%- endcomment -%}
+    {% if cell == "[]" %} 
+        {% assign filteredResponse = imnosKpisResponse[0]["kpis"] | where: "cell" | json %} 
+    {% else %}  
+        {% assign filteredResponse = imnos-kpisResponse[0]["kpis"] | where: "cell", cell | json %} 
+    {% endif %}
+
+    {%- comment -%}We're indexing at 0 because of the imnos-kpis format{%- endcomment -%}
+    {% if filteredResponse %}
+        {% assign imnoskpis = filteredResponse %}
+    {% else %}
+        {% assign imnoskpis = "[]" %}
+    {% endif %}
+{% comment %} If the imnos-kpis have not been fetched (i.e. imnos-kpisFromAPI.error) return the error {% endcomment %}
+{% else %}
+    {% assign imnoskpis = imnosKpisFromAPI | json %}
+{% endif %}
+  
+{{imnoskpis}}

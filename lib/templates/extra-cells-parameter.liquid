@@ -1,0 +1,29 @@
+{% comment %}
+Retrieve and render the extra cells param of each cell
+{% endcomment %}
+
+{% if extraCellParamRcvEmpty == false %}
+    {% assign extraCellResponse = extraCellParamFromApi.response["technologies"] | where: "technology_name", tech %}
+    {% assign ossResponse = extraCellResponse | where: "oss_name", ossName %} 
+
+    {%- comment -%}
+    If template's called on a cell, filter extra cells by that, else
+    don't apply any filters (return all extra cells param that have a name)
+    {%- endcomment -%}
+    {% if cell == "[]" %} 
+        {% assign filteredResponse = ossResponse[0]["cells"] | where: "name" | json %}   
+    {% else %}  
+        {% assign filteredResponse = ossResponse[0]["cells"] | where: "name", cell | json %}
+    {% endif %}
+
+    {% if filteredResponse %}
+        {% assign extraCells = filteredResponse %}
+    {% else %}
+        {% assign extraCells = "[]" %}
+    {% endif %}
+{% comment %} If the extra cell parameter have not been fetched (i.e. extraCellParamFromApi.error) return the error {% endcomment %}
+{% else %}
+    {% assign extraCells = extraCellParamFromApi | json %}
+{% endif %}
+
+{{extraCells}}

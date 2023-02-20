@@ -1,0 +1,40 @@
+{% comment %}
+Retrieve and render the VSWR metrics
+{% endcomment %}
+
+{% if vswrRcvEmpty == false %}
+    {% assign vswrResponse = vswrFromApi.response["technologies"] | where: "technology_name", tech %}   
+
+    {%- assign normalizedVendor = vendor | downcase -%}
+    {%- assign filteredVswrResponse = vswrResponse | where: "oss_name" , ossName  -%}
+
+    {%- if normalizedVendor == "ericsson" -%}   
+
+        {%- comment -%}
+            If template's called on a cell, filter VSWR by that, else
+            don't apply any filters (return all VSWR that have a name)
+        {%- endcomment -%}     
+        {% if cell == "[]" %} 
+            {% assign filteredResponse = filteredVswrResponse[0]["cells"]  | where: "name" | json %} 
+        {% else %}  
+            {% assign filteredResponse = filteredVswrResponse[0]["cells"]  | where: "name", cell | json %} 
+        {% endif %}
+    {% else %}
+        {% if cell == "[]" %} 
+            {% assign filteredResponse = filteredVswrResponse[0]["cells"]  | json %} 
+        {% else %}  
+            {% assign filteredResponse = filteredVswrResponse[0]["cells"]  | where: "name", cell | json %} 
+        {% endif %}    
+    {%- endif -%}
+
+    {% if filteredResponse != "[null]" %}
+        {% assign vswr = filteredResponse %}
+    {% else %}
+        {% assign vswr = "[]" %}
+    {% endif %}  
+{%- comment -%} If the VSWR metrics have not been fetched (i.e. vswrFromApi.error) return the error{% endcomment %}
+{% else %}
+    {% assign vswr = vswrFromApi | json %}
+{% endif %}
+
+{{vswr}}

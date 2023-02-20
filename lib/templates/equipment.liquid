@@ -1,0 +1,32 @@
+{% comment %}
+Retrieve and render RETs and assets
+{% endcomment %}
+
+{% if includeRets == true %}
+    {% assign retsFromApi = siteInfoResult['rets'] %}
+      {%- comment -%} If the Rets have not been fetched (i.e. retsCheckFromApi.error) return the error{% endcomment %}
+      {% if retsFromApi.error %}
+        {% assign rets = retsFromApi | json %}
+      {% else %}
+        {% assign rets = retsFromApi.response["technologies"] | json %}
+      {%- endif -%}
+
+{% else %}
+    {% assign rets = "[]" %}
+{%- endif -%}
+
+{% if includeAssets == true %}
+    {% assign assetsFromApi = siteInfoResult['assets'] %}
+
+    {% if assetsFromApi.error %}
+      {% assign asts = assetsFromApi | json %}
+    {% else %}
+      {% assign asts = assetsFromApi.response["technologies"] | json %}
+    {%- endif -%}
+
+
+{% else %}
+    {% assign asts = "[]" %}
+{%- endif -%}
+
+"equipment": [{"rets":{{rets}}}, {"assets": {{asts }}}]

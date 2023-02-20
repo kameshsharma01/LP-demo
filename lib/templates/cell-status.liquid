@@ -1,0 +1,56 @@
+{%- comment -%}
+Fetches and renders the cells info from the incoming cell-status data
+{%- endcomment -%}
+
+{% assign postfix = "," %}
+
+{% if cellsRcvEmpty == false %}
+    {% assign cellsResponse = cellStatusFromAPI.response["technologies"] | where: "technology_name", tech %}
+
+    {%- comment -%}
+    Liquid JSON filter is used to format and output the content as a JSON string.
+    It is roughly equivalent to the JS JSON.stringify(). So the filter needs to be applied
+    at the end, once all data formatting operations have been completed.
+    {%- endcomment -%}
+    {%- if cellsResponse == empty -%}
+        {% assign totalCells = "[]" %}
+        {
+            "details": {{totalCells}},
+            "extra_cell_parameters": {% render "extra-cells-parameter" tech: tech, cell: totalCells, extraCellParamFromApi: extraCellParamFromApi, extraCellParamRcvEmpty: extraCellParamRcvEmpty %},
+            "kpis": {% render "kpis" tech: tech, cell: totalCells, kpisFromAPI: kpisFromAPI, kpisRcvEmpty: kpisRcvEmpty %},
+            "imnos_kpis": {% render "imnos-kpis" tech: tech, cell: totalCells, imnosKpisFromApi: imnosKpisFromApi, imnosKpisRcvEmpty: imnosKpisRcvEmpty %},
+            "power": {% render "power" tech: tech, cell: totalCells, powerFromAPI: powerFromAPI, powerRcvEmpty: powerRcvEmpty %},
+            "alarms": {% render "cells-alarms" tech: tech, idx: idx, cell: totalCells, alarmsFromAPI: alarmsFromAPI, alarmsRcvEmpty: alarmsRcvEmpty %},
+            "rssi_rtwp": {% render "rssi-rtwp" tech: tech, cell: totalCells, rssiRtwpFromApi: rssiRtwpFromApi, rssiRcvEmpty: rssiRcvEmpty, vendor: payload.vendor %},
+            "vswr": {% render "vswr" tech: tech, cell: totalCells, vswrFromApi: vswrFromApi, vswrRcvEmpty: vswrRcvEmpty, vendor: payload.vendor %},
+            "fiber_check": {% render "fiber-check" tech: tech, cell: totalCells, fiberCheckFromApi: fiberCheckFromApi, fiberCheckRcvEmpty: fiberCheckRcvEmpty %}
+        }
+    {%- else -%}
+        {%- for response in cellsResponse -%}
+            {%- for cell in response.cells -%}
+                {%- if cell["name"] != nil -%}
+                    {% if forloop.last == true %} {% assign postfix = "" %} {% endif %}
+                    {
+                        "{{cell["name"]}}": {
+                            "cell_parameters": {{cell["parameters"] | json}},
+                            "extra_cell_parameters": {% render "extra-cells-parameter" tech: tech, cell: cell["name"], extraCellParamFromApi: extraCellParamFromApi, extraCellParamRcvEmpty: extraCellParamRcvEmpty %},
+                            "kpis": {% render "kpis" tech: tech, cell: cell["name"], kpisFromAPI: kpisFromAPI, kpisRcvEmpty: kpisRcvEmpty %},
+                            "imnos_kpis": {% render "imnos-kpis" tech: tech, cell: cell["name"], imnosKpisFromApi: imnosKpisFromApi, imnosKpisRcvEmpty: imnosKpisRcvEmpty %},
+                            "power": {% render "power" tech: tech, cell: cell["name"], powerFromAPI: powerFromAPI, powerRcvEmpty: powerRcvEmpty %},
+                            "alarms": {%- render "cells-alarms" tech: tech, idx: idx, cell: cell["name"], alarmsFromAPI: alarmsFromAPI, alarmsRcvEmpty: alarmsRcvEmpty -%},
+                            "rssi_rtwp": {% render "rssi-rtwp" tech: tech, cell: cell["name"], rssiRtwpFromApi: rssiRtwpFromApi, rssiRcvEmpty: rssiRcvEmpty, vendor: payload.vendor %},
+                            "vswr": {% render "vswr" tech: tech, cell: cell["name"], vswrFromApi: vswrFromApi, vswrRcvEmpty: vswrRcvEmpty, vendor: payload.vendor %},
+                            "fiber_check": {% render "fiber-check" tech: tech, cell: cell["name"], fiberCheckFromApi: fiberCheckFromApi, fiberCheckRcvEmpty: fiberCheckRcvEmpty %}
+                        }
+                    }{{postfix}}                     
+                {%- endif -%}                           
+            {%- endfor -%}                
+        {%- endfor -%}
+    {%- endif -%}
+{%- comment -%}An error was returned when accessing the enpoint{%- endcomment -%}         
+{%- else -%}
+    {% assign totalCells = cellStatusFromAPI | json %}
+    {
+        "error": {{totalCells}}
+    }
+{%- endif -%}

@@ -1,0 +1,13 @@
+{%- comment -%}
+Fetches and renders the alarms history data
+{%- endcomment -%}
+
+{% if includeAlarmsHistory == true %}
+    {% assign alarmsHistoryFromApi = siteInfoResult['alarms-history'] -%}
+    {% assign alarmsHistory = alarmsHistoryFromApi | json %}
+
+{% else %}
+    {% assign alarmsHistory = "[]" %}
+{%- endif -%}  
+     
+"alarms_history": {{alarmsHistory}}

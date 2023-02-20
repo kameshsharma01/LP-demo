@@ -1,0 +1,30 @@
+{% comment %}
+Retrieve and render the KPIs of each cell
+{% endcomment %}
+
+{% if kpisRcvEmpty == false %}
+    {% assign kpisResponse = kpisFromAPI.response["technologies"] | where: "technology_name", tech %}
+    {%- assign filteredKpisResponse = kpisResponse | where: "oss_name" , ossName  -%}
+
+    {%- comment -%}
+    If template's called on a cell, filter KPIs by that, else
+    don't apply any filters (return all KPIs that have a name)
+    {%- endcomment -%}
+    {% if cell == "[]" %} 
+        {% assign filteredResponse = filteredKpisResponse[0]["cells"] | where: "name" | json %} 
+    {% else %}  
+        {% assign filteredResponse = filteredKpisResponse[0]["cells"] | where: "name", cell | json %} 
+    {% endif %}
+
+    {%- comment -%}We're indexing at 0 because of the kpis format{%- endcomment -%}
+    {% if filteredResponse %}
+        {% assign kpis = filteredResponse %}
+    {% else %}
+        {% assign kpis = "[]" %}
+    {% endif %}
+{% comment %} If the kpis have not been fetched (i.e. alarmsFromAPI.error) return the error {% endcomment %}
+{% else %}
+    {% assign kpis = kpisFromAPI | json %}
+{% endif %}
+
+{{kpis}}

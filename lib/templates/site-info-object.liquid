@@ -1,0 +1,218 @@
+{%- comment -%}
+Renders the complete site-info object tree
+{%- endcomment -%}
+
+{% assign alarmsRcvEmpty = false %}
+{% assign kpisRcvEmpty = false %}
+{% assign powerRcvEmpty = false %}
+{% assign imnosKpisRcvEmpty = false %}
+{% assign cellsRcvEmpty = false %}
+{% assign rssiRcvEmpty = false %}
+{% assign vswrRcvEmpty = false %}
+{% assign extraCellParamRcvEmpty = false %}
+{% assign fiberCheckRcvEmpty = false %}
+{% assign swVersionRcvEmpty = false %}
+{% assign cellsApiRequested = false %}
+{% assign multipleTechs= false %}
+{% assign defaultTechsNumber = 1 %}
+{% assign comma = "," %}
+
+{%- comment -%}
+    Check if the overall cell-status has been requested.
+{%- endcomment -%}
+{% if includeCellStatus == true %}
+    {% assign cellStatusFromAPI = siteInfoResult['cell-status'] %}
+
+    {% if cellStatusFromAPI.error %}
+        {% assign cellsRcvEmpty = true %}
+    {% endif %}
+{% endif %}
+
+{%- comment -%}
+    Check if the cells endpoint has been requested.
+{%- endcomment -%}
+{% if includeCells == true %}
+
+    {%- comment -%}
+    If the cell-status has been requested then the tree can be built from that 
+    (we assume max info needs to be displayed). Else(this case), call the cells endpoint.
+    {%- endcomment -%}
+    {% if includeCellStatus == nil %}
+        {% assign cellStatusFromAPI = siteInfoResult['cells'] %}
+        
+        {%- comment -%}
+        We use this var when rendering the response to parse the correct cells format 
+        (i.e. which cells endpoint was requested)
+        {%- endcomment -%}
+        {% assign cellsApiRequested = true %}
+
+        {%- comment -%}TODO: Apply this check to the /cell-status too (when implemented){%- endcomment -%}
+        {% for tech in techFilters-%} 
+            {% assign techsNumber = cellStatusFromAPI.response["technologies"] | where: "technology_name", tech | size %}
+            {%- comment -%}
+            If at least one tech has more than one entries, then we need to render using the multiple-techs template
+            {%- endcomment -%}
+            {% if techsNumber > defaultTechsNumber %}
+                {% assign multipleTechs = true %}
+                {% break %}
+            {% endif %}
+        {% endfor %}
+
+        {% if cellStatusFromAPI.error %}
+            {% assign cellsRcvEmpty = true %}
+        {% endif %} 
+    {% endif %} 
+{% elsif includeCellStatus == true%}
+
+    {% for tech in techFilters-%} 
+    {% assign techsNumber = cellStatusFromAPI.response["technologies"] | where: "technology_name", tech | size %}
+        {%- comment -%}
+        If at least one tech has more than one entries, then we need to render using the multiple-techs template
+        {%- endcomment -%}
+        {% if techsNumber > defaultTechsNumber %}
+            {% assign multipleTechs = true %}
+            {% break %}
+        {% endif %}
+    {% endfor %}
+
+    {% if cellStatusFromAPI.error %}
+        {% assign cellStatusFromAPI = true %}
+    {% endif %}  
+{% endif %}
+
+{%- comment -%}
+    Check if alarms have been requested
+{%- endcomment -%}
+{% if includeAlarms == true %}
+    {% assign alarmsFromAPI = siteInfoResult['alarms'] %}
+
+    {% if alarmsFromAPI.error %}
+        {% assign alarmsRcvEmpty = true %}
+    {% endif %}
+{% endif %}
+
+{%- comment -%}
+    Check if kpis have been requested
+{%- endcomment -%}
+{% if includeKpis == true %}
+    {% assign kpisFromAPI = siteInfoResult['kpis'] -%}
+
+    {% if kpisFromAPI.error %}
+        {% assign kpisRcvEmpty = true %}
+    {% endif %}
+{% endif %}
+
+{%- comment -%}
+    Check if power has been requested
+{%- endcomment -%}
+{% if includePower == true %}
+    {% assign powerFromAPI = siteInfoResult['power'] %}
+
+    {% if powerFromAPI.error %}
+        {% assign powerRcvEmpty = true %}
+    {% endif %}    
+{% endif %}
+
+{%- comment -%}
+    Check if imnos-kpis has been requested
+{%- endcomment -%}
+{% if includeImnosKpis == true %}
+    {% assign imnosKpisFromApi = siteInfoResult['imnos-kpis'] %}
+
+    {% if imnosKpisFromApi.error %}
+        {% assign imnosKpisRcvEmpty = true %}
+    {% endif %}    
+{% endif %}
+
+{%- comment -%}
+    Check if rssi-rtwp has been requested
+{%- endcomment -%}
+{% if includeRssiRtwp == true %}
+    {% assign rssiRtwpFromApi = siteInfoResult['rssi-rtwp'] -%}
+    
+    {% if rssiRtwpFromApi.error %}
+        {% assign rssiRcvEmpty = true %}
+    {% endif %}  
+{% endif %}
+
+{%- comment -%}
+    Check if VSWR has been requested
+{%- endcomment -%}
+{% if includeVswr == true %}
+    {% assign vswrFromApi = siteInfoResult['vswr'] -%}
+    
+    {% if vswrFromApi.error %}
+        {% assign vswrRcvEmpty = true %}
+    {% endif %}  
+{% endif %}
+
+{%- comment -%}
+    Check if extra cell parameter has been requested
+{%- endcomment -%}
+{% if includeExtraCellParameters == true %}
+    {% assign extraCellParamFromApi = siteInfoResult['extra-cell-parameters'] -%}
+    
+    {% if extraCellParamFromApi.error %}
+        {% assign extraCellParamRcvEmpty = true %}
+    {% endif %}  
+{% endif %}
+
+{%- comment -%}
+    Check if Fiber Check has been requested
+{%- endcomment -%}
+{% if includeFiberCheck == true %}
+    {% assign fiberCheckFromApi = siteInfoResult['fiber-check'] -%}
+    
+    {% if fiberCheckFromApi.error %}
+        {% assign fiberCheckRcvEmpty = true %}
+    {% endif %}  
+{% endif %}
+
+{%- comment -%}
+    Check if Software Version has been requested
+{%- endcomment -%}
+{% if includeSwVersion == true %}
+    {% assign swVersionFromApi = siteInfoResult['sw-version'] -%}
+
+    {% if swVersionFromApi.error %}
+        {% assign swVersionRcvEmpty = true %}
+    {% endif %}
+{% endif %}
+
+{%- if multipleTechs == true -%}
+    {% render "details-multiple-techs" cellStatusFromAPI: cellStatusFromAPI, payload: payload, alarmsFromAPI: alarmsFromAPI, 
+    alarmsRcvEmpty: alarmsRcvEmpty, kpisFromAPI: kpisFromAPI,extraCellParamFromApi:extraCellParamFromApi, kpisRcvEmpty: kpisRcvEmpty, cellsRcvEmpty: cellsRcvEmpty,
+    rssiRtwpFromApi: rssiRtwpFromApi, rssiRcvEmpty: rssiRcvEmpty, vswrFromApi: vswrFromApi, vswrRcvEmpty: vswrRcvEmpty,
+    fiberCheckFromApi: fiberCheckFromApi, fiberCheckRcvEmpty: fiberCheckRcvEmpty, extraCellParamRcvEmpty:extraCellParamRcvEmpty,
+    powerFromAPI: powerFromAPI, powerRcvEmpty: powerRcvEmpty,cellsApiRequested:cellsApiRequested,imnosKpisFromApi: imnosKpisFromApi, imnosKpisRcvEmpty: imnosKpisRcvEmpty 
+    includeGsmInfo: includeGsmInfo, techFilters: techFilters,includeCellStatus:includeCellStatus,
+    swVersionFromApi: swVersionFromApi, swVersionRcvEmpty: swVersionRcvEmpty, multipleTechs:multipleTechs %}
+{%- else -%}
+    {% for tech in techFilters -%}  
+        "{{tech}}": {
+            "oss_name": {% render "oss-info" tech: tech, cellStatusFromAPI: cellStatusFromAPI, idx: forloop.index0, cellsRcvEmpty: cellsRcvEmpty %}{{comma}}
+            "cells": [
+                {% render "details-single-tech" tech: tech, payload: payload, idx: forloop.index0, cellsApiRequested: cellsApiRequested,
+                cellStatusFromAPI: cellStatusFromAPI, kpisFromAPI: kpisFromAPI,extraCellParamFromApi:extraCellParamFromApi, rssiRtwpFromApi: rssiRtwpFromApi,
+                rssiRcvEmpty: rssiRcvEmpty, kpisRcvEmpty: kpisRcvEmpty, cellsRcvEmpty: cellsRcvEmpty, powerRcvEmpty: powerRcvEmpty,imnosKpisFromApi: imnosKpisFromApi, imnosKpisRcvEmpty: imnosKpisRcvEmpty 
+                vswrFromApi: vswrFromApi, vswrRcvEmpty: vswrRcvEmpty, alarmsFromAPI: alarmsFromAPI, powerFromAPI: powerFromAPI,extraCellParamRcvEmpty:extraCellParamRcvEmpty,
+                alarmsRcvEmpty: alarmsRcvEmpty, fiberCheckFromApi: fiberCheckFromApi, fiberCheckRcvEmpty: fiberCheckRcvEmpty
+                %}
+            ]{{comma}}
+            "sw_version": {% render "sw-version" tech: tech, swVersionFromApi: swVersionFromApi, swVersionRcvEmpty: swVersionRcvEmpty %}
+            {{comma}}
+            "nodes":{% render "nodes" tech: tech, cellsRcvEmpty: cellsRcvEmpty, cellStatusFromAPI: cellStatusFromAPI, cellsApiRequested: cellsApiRequested,cell: cell["name"], fiberCheckFromApi: fiberCheckFromApi, fiberCheckRcvEmpty: fiberCheckRcvEmpty,ossName: ossName, payload: payload %}
+            {{comma}}
+            "rxotgs": [  
+                {% render "rxotgs"  tech: tech, cellsRcvEmpty: cellsRcvEmpty, cellStatusFromAPI: cellStatusFromAPI, cellsApiRequested: cellsApiRequested, payload: payload %}
+            ]{{comma}}
+            {% render "gsm-info" tech: tech, includeGsmInfo: includeGsmInfo, payload: payload %}
+            "alarms": {% render "alarms" tech: tech, alarmsFromAPI: alarmsFromAPI, alarmsRcvEmpty: alarmsRcvEmpty %}
+        }{{comma}}
+    {% endfor %}
+{%- endif -%}
+
+{% render "equipment" payload: payload, includeRets: includeRets, includeAssets: includeAssets,siteInfoResult: siteInfoResult %}{{comma}}
+{% render "external-alarms" payload: payload, includeExternalAlarms: includeExternalAlarms, siteInfoResult: siteInfoResult, vendor: payload.vendor %}{{comma}}
+{% render "alarms-history" payload: payload, includeAlarmsHistory: includeAlarmsHistory,siteInfoResult: siteInfoResult %}{{comma}}
+{% render "cmd-healthcheck" payload: payload, includeCmdHealthCheck: includeCmdHealthCheck,siteInfoResult: siteInfoResult %}

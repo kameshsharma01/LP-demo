@@ -1,0 +1,30 @@
+{% comment %}
+For the tech specified, retrieve and render the alarms of each cell from the total set of alarms
+{% endcomment %}
+
+{%- if alarmsRcvEmpty == false -%}
+    {%- assign alarmsResponse = alarmsFromAPI.response["technologies"] | where: "technology_name", tech -%}
+
+    {% comment %}
+    If template's called on a cell, filter alarms by that, else
+    don't apply any filters (return all cells alarms that have a name)
+    {% endcomment %}
+    {%- if cell == "[]" -%}
+      {%- assign filteredResponse = alarmsResponse[0]["cells"] | where: "name" | json -%}
+    {%- else -%}
+      {%- assign filteredResponse = alarmsResponse[0]["cells"] | where: "name" , cell | json -%}
+    {%- endif -%}
+
+
+    {% if filteredResponse %}
+        {% assign cellsAlarms = filteredResponse %}
+    {% else %}
+        {% assign cellsAlarms = "[]" %}
+    {% endif %}
+
+{% comment %} If the alarms have not been fetched (i.e. alarmsFromAPI.error) return the error {% endcomment %}
+{%- else -%}
+    {%- assign cellsAlarms = alarmsFromAPI | json -%}
+{%- endif -%}
+
+{{cellsAlarms}}

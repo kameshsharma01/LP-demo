@@ -1,0 +1,18 @@
+{%- comment -%}
+Fetches and renders the oss info from the incoming cell or cell-status data
+{%- endcomment -%}
+
+{%- if cellsRcvEmpty == false -%}
+    {% assign cellsResponse = cellStatusFromAPI.response["technologies"] | where: "oss_name"| first %}
+
+    {%- if cellsResponse.oss_name | json -%}
+        {% assign oss_name = cellsResponse.oss_name | json %}
+    {%- else -%}
+        {% assign oss_name = "[]" %}
+    {%- endif -%}        
+{%- else -%}
+    {% assign oss_name = cellStatusFromAPI | json %}
+{%- endif -%}
+
+
+{{oss_name}}

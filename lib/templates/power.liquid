@@ -1,0 +1,30 @@
+{% comment %}
+Retrieve and render power data of each cell
+{% endcomment %}
+
+{% if powerRcvEmpty == false %}
+    {% assign powerResponse = powerFromAPI.response["technologies"] | where: "technology_name", tech %}
+    {%- assign filteredPowerResponse = powerResponse | where: "oss_name" , ossName  -%}
+
+    {%- comment -%}
+    If template's called on a cell, filter power by that, else
+    don't apply any filters (return all power data that have a name)
+    {%- endcomment -%}
+    {% if cell == "[]" %} 
+        {% assign filteredResponse = filteredPowerResponse[0]["cells"] | where: "name" | json %} 
+    {% else %}  
+        {% assign filteredResponse = filteredPowerResponse[0]["cells"] | where: "name", cell | json %} 
+    {% endif %}
+
+    {%- comment -%}We're indexing at 0 because of the power format{%- endcomment -%}
+    {% if filteredResponse %}
+        {% assign power = filteredResponse %}
+    {% else %}
+        {% assign power = "[]" %}
+    {% endif %}
+{% comment %} If the power have not been fetched (i.e. powerFromAPI.error) return the error {% endcomment %}
+{% else %}
+    {% assign power = powerFromAPI | json %}
+{% endif %}
+  
+{{power}}

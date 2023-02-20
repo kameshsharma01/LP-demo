@@ -1,0 +1,18 @@
+{% comment %}
+Retrieve and render the GSM info (only when tech is GSM)
+{% endcomment %}
+{% assign GSM = "GSM" %}
+{% assign comma = "," %}
+
+{% if includeGsmInfo == true and tech == GSM %}
+    {% assign gsmInfoFromApi = siteInfoResult['gsm-info'] %}
+
+    {% comment %}Get only the gsm_info contents{% endcomment %}
+    {% assign info = gsmInfoFromApi.response["info"] | map: "gsm_info" | json %}
+    "gsm-info": {{info}}{{comma}}
+
+{% else %}
+    {% assign gsmInfo = nil %}
+    {{gsmInfo}}
+{%- endif -%}      
+

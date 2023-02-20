@@ -1,0 +1,14 @@
+{% comment %}
+Retrieve and render the external alarms{% endcomment %}
+{% if includeExternalAlarms == true %}
+    {% assign extAlarmsFromApi = siteInfoResult['external-alarms']%}
+    {%- assign externalAlarms = extAlarmsFromApi.response["oss"] | map: "alarms" |  join: ',' | json -%}
+        {% if externalAlarms != null and externalAlarms != "" and externalAlarms != empty and ifExist != blank %}
+            {% assign alarms = externalAlarms  %}
+        {% else %}
+            {% assign alarms = '[]' %}
+        {%- endif -%}
+{% else %}
+    {% assign alarms = '[]' %}
+{%- endif -%}
+"external_alarms": {{alarms}}

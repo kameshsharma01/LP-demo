@@ -1,0 +1,72 @@
+{% assign includeCellStatus = payload.includeCellStatus %}
+{% assign includeExtraCellParameters = payload.includeExtraCellParameters %}
+{% assign includeAlarms = payload.includeAlarms %}
+{% assign includeCmdHealthCheck = payload.includeCommandsHealthCheck %}
+{% assign includeKpis = payload.includeKpis %}
+{% assign includeRssiRtwp = payload.includeRssiRtwp %}
+{% assign includeCells = payload.includeCells %}
+{% assign includeAlarmsHistory = payload.includeAlarmsHistory %} 
+{% assign includeExternalAlarms = payload.includeExternalAlarms %}
+{% assign includeVswr = payload.includeVswr %}
+{% assign includeFiberCheck = payload.includeFiberCheck %}
+{% assign includeRets = payload.includeRets %}
+{% assign includeAssets = payload.includeAssets %}
+{% assign includeGsmInfo = payload.includeGsmInfo %}
+{% assign includePower = payload.includePower %}
+{% assign includeImnosKpis = payload.includeImnosKpis %}
+{% assign includeSwVersion = payload.includeSwVersion %}
+{% assign siteInfoResult = siteInfoResult%}
+
+{% comment %}
+Get a list of allowed filters which is the techs' normalized versions as stored in DB.
+We'll be using this to parse the controller's responses that are now normalized on a
+technology_name level.
+{% endcomment %}
+{% assign techFilters = payload.normalizedTechs %}
+{% if payload.protocols %}
+    {% assign protocols = payload.protocols | json %}  
+{% else %}
+    {% assign protocols = "{}" %} 
+{%- endif -%}
+
+{
+"requested_info": [
+{"market": "{{ payload.market }}"},
+{"vendor": "{{ payload.vendor }}"},
+{"operator": "{{ payload.operator }}"},
+{"check_type": "{{ payload.check_type }}"},
+{"site_id": "{{ payload.site_id }}"},
+{"techs": "{{ payload.techs }}"},
+{"timestamp": "{{ 'now' | date: "%s"}}"},
+{"incoming_modules": {
+    "cell_status": "{{ includeCellStatus | default: "false"}}",
+    "cmd_healthcheck": "{{ includeCmdHealthCheck | default: "false"}}",
+    "alarms": "{{ includeAlarms | default: "false"}}",
+    "kpis": "{{ includeKpis | default: "false"}}",
+    "cells": "{{ includeCells | default: "false"}}",
+    "rssi_rtwp": "{{ includeRssiRtwp | default: "false"}}",
+    "alarms_history": "{{ includeAlarmsHistory | default: "false"}}",
+    "external_alarms": "{{ includeExternalAlarms | default: "false"}}",
+    "vswr": "{{ includeVswr | default: "false"}}",
+    "fiber_check": "{{ includeFiberCheck | default: "false"}}",
+    "rets": "{{ includeRets | default: "false"}}",
+    "assets": "{{ includeAssets | default: "false"}}",
+    "gsm_info": "{{ includeGsmInfo | default: "false"}}",
+    "power": "{{ includePower | default: "false"}}",
+    "imnos_kpis": "{{ includeImnosKpis | default: "false"}}",
+    "extra_cell_parameters": "{{ includeExtraCellParameters | default: "false"}}",
+    "sw_version": "{{ includeSwVersion | default: "false"}}"
+    }
+},
+{"protocols": {{ protocols }}}
+],
+{% render "site-info-object" payload: payload, includeCellStatus: includeCellStatus, 
+    includeCmdHealthCheck: includeCmdHealthCheck, includeAlarms: includeAlarms, 
+    includeKpis: includeKpis, includeCells: includeCells, techFilters: techFilters,
+    includeRssiRtwp: includeRssiRtwp, includeAlarmsHistory: includeAlarmsHistory, 
+    includeExternalAlarms: includeExternalAlarms, includeVswr: includeVswr, 
+    includeFiberCheck: includeFiberCheck, includeRets: includeRets,
+    includeExtraCellParameters:includeExtraCellParameters,
+    includeAssets: includeAssets, includeGsmInfo: includeGsmInfo, includePower: includePower,
+    includeImnosKpis:includeImnosKpis, includeSwVersion: includeSwVersion, siteInfoResult:siteInfoResult %}
+}

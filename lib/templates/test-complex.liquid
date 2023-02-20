@@ -1,0 +1,10 @@
+{
+    "site_id": "{{ payload.site_id }}",
+    "market": "{{ payload.market }}",
+    "vendor": "{{ payload.vendor }}",
+    "operator": "{{ payload.operator }}",
+    "check_type": "{{ payload.check_type }}",
+    "techs": {{ payload.techs | json }},
+    {%- assign cellStatus = true | getCellStatus: site_id: payload.site_id, market: payload.market, vendor: payload.vendor, operator: payload.operator, check_type: payload.check_type, techs: payload.techs -%}
+    "cell_status": [{% if cellStatus.error %}{{ cellStatus | json }}{% else %}{{ cellStatus.response | json }}{% endif %}]
+}
