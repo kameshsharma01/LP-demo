@@ -3,8 +3,19 @@
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+  "scripts":{
+    "format": "prettier \"{lib,test}/**/*.js\"",
+    "format:check": "npm run format -- --check",
+    "format:list": "npm run format -- --list-different",
+    "format:write": "npm run format -- --write",
+    "lint": "eslint \"{lib,test}/**/*.js\" index.js",
+    "lint:fix": "npm run lint -- --fix",
+    "start:dev": "nodemon -r make-promises-safe -r dotenv/config index.js",
+    "start": "node -r make-promises-safe -r dotenv/config index.js",
+    "test": "jest",
+    "test:dependencies": "./test/support/depcheck.js",
+    "test:coverage": "jest --coverage",
+    "test:watch": "jest --watch"
   },
   "dependencies": {
     "ajv": "^6.12.6",
