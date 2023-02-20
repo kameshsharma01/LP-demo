@@ -1,0 +1,5 @@
+.clinic/
+.env
+coverage/
+package.json
+package-lock.json

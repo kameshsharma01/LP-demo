@@ -1,0 +1,41 @@
+name: Release
+on:
+  push:
+    branches:
+      - dev
+      - main
+  workflow_dispatch:
+
+jobs:
+  release:
+    name: Release
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node-version: [14.x]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v2
+        with:
+          node-version: ${{ matrix.node-version }}
+      - name: Install dependencies
+        uses: bahmutov/npm-install@v1
+      - name: Check format
+        run: npm run format:check
+      - name: Static analysis
+        run: npm run lint
+      # - name: Audit packages
+      #   run: npm audit --audit-level=high
+      # - name: Run tests
+      #   run: npm run test:coverage
+      - name: Release
+        if: github.ref == 'refs/heads/main'
+        run: npx semantic-release
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
