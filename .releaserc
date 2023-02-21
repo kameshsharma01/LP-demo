@@ -1,18 +1,44 @@
 {
   "plugins": [
-    "@semantic-release/commit-analyzer",
-    "@semantic-release/release-notes-generator",
+    [
+      "@semantic-release/commit-analyzer",
+      {
+        "preset": "angular",
+        "releaseRules": [
+          {
+            "type": "feat",
+            "release": "major"
+          },
+          {
+            "type": "fix",
+            "release": "minor"
+          },
+          {
+            "type": "chore",
+            "release": "patch"
+          }
+        ]
+      }
+    ],
     "@semantic-release/changelog",
-    ["@semantic-release/git", {
-      "assets": ["package.json", "CHANGELOG.md"],
-      "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
-    }],
-    "@semantic-release/github"
+    "@semantic-release/github",
+    "@semantic-release/release-notes-generator",
+    {
+      "npmPublish": false
+    }
   ],
   "branches": [
+    "+([0-9])?(.{+([0-9],x}).x",
     "main",
     "next",
-    { "name": "beta", "prerelease": true },
-    { "name": "alpha", "prerelease": true }
+    "next-major",
+    {
+      "name": "beta",
+      "prerelease": true
+    },
+    {
+      "name": "alpha",
+      "prerelease": true
+    }
   ]
 }
