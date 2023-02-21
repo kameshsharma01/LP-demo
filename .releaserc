@@ -7,6 +7,10 @@
         "releaseRules": [
           {
             "type": "feat",
+            "release": "major"
+          },
+          {
+            "type": "feat",
             "release": "minor"
           },
           {
