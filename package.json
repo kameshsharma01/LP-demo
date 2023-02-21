@@ -21,10 +21,7 @@
     "test:coverage": "jest --coverage",
     "test:watch": "jest --watch"
   },
-  "publishConfig": {
-    "registry": "https://private-npm-registry-url/repository/npm-internal/"
-  },
-  "dependencies": {
+   "dependencies": {
     "@semantic-release/git": "^10.0.1",
     "ajv": "^6.12.6",
     "fastify": "^3.0.0",
